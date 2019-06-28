@@ -1,0 +1,40 @@
+#!/usr/bin/expect
+
+set RELAY_HOST [lindex $argv 0]
+set RELAY_USER [lindex $argv 1]
+set RELAY_PASSWD [lindex $argv 2]
+
+set LOGIN_HOST [lindex $argv 3]
+set LOGIN_USER [lindex $argv 4]
+set LOGIN_PASSWD [lindex $argv 5]
+
+# 登录跳板机
+spawn ssh $RELAY_USER@$RELAY_HOST
+
+expect {
+    "yes/no" {
+        send "yes\r";
+        exp_continue;
+    }
+    "*password:*" { 
+        send "$RELAY_PASSWD\r";
+        exp_continue;
+    }
+    "bash\-baidu\-ssl" {
+        send "ssh $LOGIN_USER@$LOGIN_HOST\r";
+    }
+}
+
+# 登录内网
+expect {
+    "yes/no" {
+        send "yes\r";
+        exp_continue;
+    }
+    "*password:*" { 
+        send "$LOGIN_PASSWD\r" 
+    }
+}
+
+# 交互
+interact

@@ -1,0 +1,67 @@
+#!/usr/bin/env python
+# coding:utf-8
+
+import os
+import sys
+import relay_conf
+
+basedir = os.path.dirname(os.path.realpath(__file__))
+
+def print_msg(msg):
+    sys.stdout.write(msg)
+    sys.stdout.write('\n')
+    sys.stdout.flush()
+
+def print_err(msg):
+    sys.stderr.write(msg)
+    sys.stderr.write('\n')
+    sys.stderr.flush()
+    sys.exit(1)
+
+def get_host(hosts, name):
+    data = []
+    for item in hosts:
+        if name == item['key'] or name == item['host']:
+            return [item]
+        if name in item['key'] or name in item['host']:
+            data.append(item)
+    return data
+
+
+if len(sys.argv) < 2:
+    print_err('Please input host name!')
+
+hosts = []
+with open(basedir + '/hosts.conf') as fp:
+    for oriline in fp:
+        oriline = oriline.strip()
+        line = oriline.split('#')[0]
+        if not line:
+            continue
+        data = line.split(':')
+        hosts.append({
+            'key': data[0],
+            'user': data[1],
+            'passwd': data[2],
+            'host': data[3],
+            'line': oriline,
+        })
+
+name = sys.argv[1].strip()
+select_hosts = get_host(hosts, name)
+if not select_hosts:
+    print_err('No host is matched!')
+
+if len(select_hosts) > 1:
+    print_msg('More hosts matches:')
+    for i, item in enumerate(select_hosts):
+        print_msg('%d -- %s'%(i, item['line']))
+    print_err('Please select what you want.')
+
+select_host = select_hosts[0]
+print_msg('Login Host: {user}@{host}'.format(**select_host))
+select_host['relay_host'] = relay_conf.relay_host
+select_host['relay_user'] = relay_conf.relay_user
+select_host['relay_passwd'] = relay_conf.relay_passwd
+expectcmd = basedir + '/login {relay_host} {relay_user} {relay_passwd} {host} {user} {passwd}'.format(**select_host)
+os.system(expectcmd)
