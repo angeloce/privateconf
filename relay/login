@@ -1,5 +1,7 @@
 #!/usr/bin/expect
 
+set timeout 5
+
 set RELAY_HOST [lindex $argv 0]
 set RELAY_USER [lindex $argv 1]
 set RELAY_PASSWD [lindex $argv 2]
@@ -30,6 +32,8 @@ expect {
     "yes/no" {
         send "yes\r";
         exp_continue;
+    }
+    "*~]$*" { 
     }
     "*password:*" { 
         send "$LOGIN_PASSWD\r" 
