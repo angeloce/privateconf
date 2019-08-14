@@ -46,8 +46,7 @@ set guifont=Courier_New:h10
 
 " File type and unicoding
 set encoding=utf-8
-set fileencodings=utf-8,gb2312,gbk,gb18030
-set termencoding=utf-8,gb2312,gbk,gb18030
+set fileencodings=utf-8,gb2312
 
 set ffs=unix,dos,mac
 
